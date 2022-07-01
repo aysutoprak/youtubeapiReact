@@ -9,6 +9,7 @@ let channelArray = "";
 let channelName = "";
 let channelImage = "";
 let imageLoaded = false;
+let Url = "";
 let CHANNEL_ID = "UCcjSKYD5nqlqhlUKsRvIaWA";
 //Self-note : Add this api key to an .env file later
 let REACT_APP_API_KEY = "AIzaSyBaDxT - XSmntC6WZ6gjdldRCKUPPTUmmuQ";
@@ -21,16 +22,19 @@ class App extends React.Component {
       videoCount: "-",
       channelName: "",
       channelImage: "",
+      Url: "",
       imageLoaded: false,
     };
+    this.handleClick = this.handleClick.bind(this);
   }
 
   fetchChannel() {
+    console.log(this.state.Url);
     Promise.all([
       fetch(`
-         https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${REACT_APP_API_KEY}`),
+         https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${this.state.Url}&key=${REACT_APP_API_KEY}`),
       fetch(`
-         https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${CHANNEL_ID}&key=${REACT_APP_API_KEY}`),
+         https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${this.state.Url}&key=${REACT_APP_API_KEY}`),
     ])
       .then(function (responses) {
         // Get a JSON object from each of the responses
@@ -49,8 +53,16 @@ class App extends React.Component {
       });
   }
 
-  componentDidMount() {
+  componentDidUpdate() {
     this.fetchChannel();
+  }
+
+  handleChange(event) {
+    Url = event.target.value;
+  }
+
+  handleClick() {
+    this.setState({ Url });
   }
 
   updateViewCount() {
@@ -83,6 +95,21 @@ class App extends React.Component {
             className="yt_logo"
           ></img>
           <h1>Youtube API</h1>
+          <div className="channelid_div">
+            <input
+              type="text"
+              className="channel_input"
+              placeholder="Enter Channel id"
+              onChange={this.handleChange}
+            />
+            <button
+              onClick={this.handleClick}
+              className="submit_id button_active"
+            >
+              Submit
+            </button>
+          </div>
+
           <div className="channel_div">
             <h2>Channel : </h2>
             {this.state.imageLoaded ? (
@@ -113,7 +140,10 @@ class App extends React.Component {
             </div>
           </div>
           <div className="button_div">
-            <button onClick={() => this.updateViewCount()}>
+            <button
+              className={`${!Url ? "button_inactive" : "button_active"}`}
+              onClick={() => this.updateViewCount()}
+            >
               Get Statistic
             </button>
           </div>
